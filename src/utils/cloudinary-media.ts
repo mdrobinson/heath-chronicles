@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
-  cloud_name: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
+  cloud_name: 'dtium3yae',
   api_key: import.meta.env.CLOUDINARY_API_KEY,
   api_secret: import.meta.env.CLOUDINARY_API_SECRET,
   secure: true,
@@ -19,7 +19,7 @@ function generateOptimizedUrl(publicId: string, type: string, cloudName: string)
  * Format resource object consistently
  */
 function formatResource(resource: any) {
-  const cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const cloudName = 'dtium3yae';
   const isVideo = resource.resource_type === 'video';
 
   return {
