@@ -1,0 +1,205 @@
+---
+// Map.astro
+// This component displays a Google Map with multiple markers
+import type { Marker } from '../pages/index.astro';
+
+interface Props {
+  apiKey: string;
+  markers?: Marker[];
+  zoom?: number;
+  center?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+const {
+  apiKey,
+  markers = [],
+  zoom = 4,
+  center = { lat: 39.8283, lng: -98.5795 }, // Center of US
+} = Astro.props;
+
+// Generate a unique ID for this map instance
+const mapId = `map-${Math.random().toString(36).substring(7)}`;
+---
+
+<div id={mapId} class="google-map"></div>
+
+<script define:vars={{ apiKey, markers, zoom, center, mapId }}>
+  // Load Google Maps API
+  function loadGoogleMapsScript() {
+    return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if (window.google && window.google.maps) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  // Initialize the map
+  async function initMap() {
+    try {
+      await loadGoogleMapsScript();
+
+      const mapElement = document.getElementById(mapId);
+      if (!mapElement) return;
+
+      // Create the map
+      const map = new google.maps.Map(mapElement, {
+        zoom: zoom,
+        center: center,
+        mapTypeControl: false,
+        streetViewControl: false,
+        zoomControl: false,
+        scaleControl: false,
+        rotateControl: false,
+        fullscreenControl: false,
+        panControl: false,
+        disableDefaultUI: true,
+        mapTypeId: 'satellite',
+        styles: [
+          {
+            featureType: 'administrative',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'administrative.country',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'administrative.province',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'administrative.locality',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'poi',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'water',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
+      });
+
+      // Keep track of the currently open info window
+      let currentInfoWindow = null;
+
+      // Add markers
+      markers.forEach((marker) => {
+        const mapMarker = new google.maps.Marker({
+          position: { lat: marker.lat ?? 0, lng: marker.lng ?? 0 },
+          map: map,
+          title: marker.title || '',
+          icon: {
+            url: 'https://res.cloudinary.com/dtium3yae/image/upload/v1774211321/heath40_uhjxeo.png',
+            scaledSize: new google.maps.Size(40, 40),
+            size: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 40),
+          },
+        });
+
+        // Build media HTML based on type
+        const getMediaHtml = (marker) => {
+          const url = marker.optimizedUrl;
+
+          if (marker.mediaType === 'video') {
+            return `
+        <video 
+          controls 
+          style="width: 100%; max-height: 300px; border-radius: 4px; min-width: 300px"
+          preload="metadata"
+        >
+          <source src="${url}" type="video/mp4">
+          Your browser doesn't support video playback.
+        </video>
+      `;
+          } else {
+            return `
+        <img
+          src="${url}"
+          alt="${marker.title}"
+          style="width: 100%; max-height: 300px; border-radius: 4px; min-width: 300px; object-fit: contain"
+        />
+      `;
+          }
+        };
+
+        // Add info window if description is provided
+        if (marker.description || marker.title) {
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+              <div style="padding: 10px;">
+                ${marker.title ? `<h3 style="margin: 0 0 5px 0; font-size: 16px;">${marker.title}</h3>` : ''}
+                ${marker.location ? `<p style="margin: 0; font-size: 14px;">${marker.location}</p>` : ''}
+                          ${getMediaHtml(marker)}
+                    ${marker.placedBy ? `<p style="margin: 8px 0 0 0; font-size: 12px; color: #999;">Placed by: <span style="color: #C6002B;">${marker.placedBy}</span></p>` : ''}
+            `,
+          });
+
+          mapMarker.addListener('click', () => {
+            // Close the currently open info window if there is one
+            if (currentInfoWindow) {
+              currentInfoWindow.close();
+            }
+            infoWindow.open(map, mapMarker);
+            currentInfoWindow = infoWindow;
+          });
+
+          map.addListener('click', () => {
+            if (currentInfoWindow) {
+              currentInfoWindow.close();
+              currentInfoWindow = null;
+            }
+          });
+        }
+      });
+
+      // Auto-fit bounds if there are multiple markers
+      if (markers.length > 1) {
+        const bounds = new google.maps.LatLngBounds();
+        markers.forEach((marker) => {
+          bounds.extend(new google.maps.LatLng(marker.lat ?? 0, marker.lng ?? 0));
+        });
+        map.fitBounds(bounds);
+      }
+    } catch (error) {
+      console.error('Error loading Google Maps:', error);
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMap);
+  } else {
+    initMap();
+  }
+</script>
+
+<style>
+  .google-map {
+    width: 100%;
+    height: 85dvh;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+</style>

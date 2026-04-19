@@ -1,11 +1,115 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Map from '../components/Map.astro';
+import { fetchAllMediaFromFolder } from '../utils/cloudinary-media';
+const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
+export interface Marker {
+  lat: number;
+  lng: number;
+  title: string;
+  location: string;
+  identifier: string;
+  optimizedUrl: string;
+  thumbnailUrl: string;
+  placedBy: string;
+  mediaType: string;
+}
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+let markers: Marker[] = [];
+const mediaData = await fetchAllMediaFromFolder('');
+mediaData.all.forEach((media) => {
+  const thisMarker: Marker = {
+    lat: Number(media.context.custom.lat),
+    lng: Number(media.context.custom.long),
+    title: media.context.custom.caption,
+    location: media.context.custom.alt,
+    identifier: media.context.custom.identifier,
+    optimizedUrl: media.optimizedUrl,
+    thumbnailUrl: media.thumbnailUrl,
+    placedBy: media.context.custom['placed-by'],
+    mediaType: media.resourceType,
+  };
+  if (thisMarker.title && thisMarker.identifier && thisMarker.lat && thisMarker.lng) {
+    markers.push(thisMarker);
+  }
+});
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Heath Chronicles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <div id="header">
+        <h1>The Heath Chronicles</h1>
+      </div>
+
+      <Map apiKey={apiKey} markers={markers} zoom={4} />
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  main {
+    margin: 0 auto;
+    padding: 0 0.5rem 1rem 0.5rem;
+    min-height: 100dvh;
+
+    /* Deep teal to navy - echoes ocean depth */
+    /* background: linear-gradient(135deg, #1e293b, #134e4a); */
+
+    background-color: #1e293b;
+    background-image:
+      radial-gradient(ellipse 280px 120px at 8% 18%, rgba(255, 255, 255, 0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 180px 80px at 22% 12%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+      radial-gradient(
+        ellipse 320px 130px at 55% 22%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 70%
+      ),
+      radial-gradient(ellipse 200px 90px at 75% 14%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+      radial-gradient(
+        ellipse 260px 110px at 92% 20%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 70%
+      ),
+      linear-gradient(135deg, #1e293b, #134e4a);
+  }
+
+  #header {
+    display: flex;
+    justify-content: center;
+    h1 {
+      font-family: 'Playfair Display', serif;
+      margin: 1rem 0;
+      color: #fff;
+      text-shadow:
+        0 0 20px rgba(20, 184, 166, 0.7),
+        0 0 60px rgba(20, 184, 166, 0.3);
+    }
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+</style>
