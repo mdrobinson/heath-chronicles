@@ -57,8 +57,6 @@ export async function fetchAllMediaFromFolder(folderPath: string) {
       public_ids: true,
     });
 
-    console.log(imageResults);
-
     // Fetch videos
     const videoResults = await cloudinary.api.resources({
       type: 'upload',
