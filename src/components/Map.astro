@@ -260,6 +260,7 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
 
   /* INFOWINDOW STYLES */
   .iw-container {
+    container-type: inline-size;
     padding: 10px;
     max-width: calc(var(--map-width) * 0.9);
     overflow: hidden;
@@ -267,19 +268,19 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
 
   .iw-title {
     margin: 0 0 5px 0;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: clamp(12px, 6cqw, 28px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
     font-family: 'Coramant Garamond', serif;
     color: #2c2420;
-    max-width: 90%;
     text-align: center;
   }
 
   .iw-location {
     margin: 0;
-    font-size: 14px;
+    font-size: 0.8rem;
     display: flex;
     justify-content: center;
     margin-bottom: 0.5rem;
@@ -307,6 +308,6 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
   .iw-placed-by__name {
     color: #c6002b;
     padding-left: 0.1rem;
-    font-weight: 500;
+    font-weight: 400;
   }
 </style>
