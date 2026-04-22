@@ -47,6 +47,10 @@ mediaData.all.forEach((media) => {
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <main>
@@ -67,11 +71,27 @@ mediaData.all.forEach((media) => {
       sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #1e293b;
+    background-image:
+      radial-gradient(ellipse 280px 120px at 8% 18%, rgba(255, 255, 255, 0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 180px 80px at 22% 12%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+      radial-gradient(
+        ellipse 320px 130px at 55% 22%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 70%
+      ),
+      radial-gradient(ellipse 200px 90px at 75% 14%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+      radial-gradient(
+        ellipse 260px 110px at 92% 20%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 70%
+      ),
+      linear-gradient(135deg, #1e293b, #134e4a);
   }
 
   main {
     margin: 0 auto;
-    padding: 0 0.5rem 1rem 0.5rem;
+    padding: 1rem 0.5rem;
     min-height: 100dvh;
 
     /* Deep teal to navy - echoes ocean depth */

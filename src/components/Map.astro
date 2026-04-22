@@ -24,7 +24,9 @@ const {
 const mapId = `map-${Math.random().toString(36).substring(7)}`;
 ---
 
-<div id={mapId} class="google-map"></div>
+<div class="map-wrapper">
+  <div id={mapId} class="google-map"></div>
+</div>
 
 <script define:vars={{ apiKey, markers, zoom, center, mapId }}>
   // Load Google Maps API
@@ -124,44 +126,42 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
 
           if (marker.mediaType === 'video') {
             return `
-        <video 
-          controls 
-          style="width: 100%; max-height: 300px; border-radius: 4px; min-width: 300px"
-          preload="metadata"
-        >
-          <source src="${url}" type="video/mp4">
-          Your browser doesn't support video playback.
-        </video>
-      `;
+              <video muted class="iw-media iw-media--video" controls preload="metadata">
+                <source src="${url}" type="video/mp4">
+                Your browser doesn't support video playback.
+              </video>
+            `;
           } else {
             return `
-        <img
-          src="${url}"
-          alt="${marker.title}"
-          style="width: 100%; max-height: 300px; border-radius: 4px; min-width: 300px; object-fit: contain"
-        />
-      `;
+              <img class="iw-media iw-media--image" src="${url}" alt="${marker.title}" />
+            `;
           }
         };
 
         // Add info window if description is provided
         if (marker.description || marker.title) {
           const infoWindow = new google.maps.InfoWindow({
+            maxWidth: mapElement.offsetWidth * 0.8,
             content: `
-              <div style="padding: 10px;">
-                ${marker.title ? `<h3 style="margin: 0 0 5px 0; font-size: 16px;">${marker.title}</h3>` : ''}
-                ${marker.location ? `<p style="margin: 0; font-size: 14px;">${marker.location}</p>` : ''}
-                          ${getMediaHtml(marker)}
-                    ${marker.placedBy ? `<p style="margin: 8px 0 0 0; font-size: 12px; color: #999;">Placed by: <span style="color: #C6002B;">${marker.placedBy}</span></p>` : ''}
+              <div class="iw-container">
+                ${marker.title ? `<h2 class="iw-title">${marker.title}</h2>` : ''}
+                ${marker.location ? `<p class="iw-location">${marker.location}</p>` : ''}
+                ${getMediaHtml(marker)}
+                ${marker.placedBy ? `<p class="iw-placed-by">Placed by: <span class="iw-placed-by__name">${marker.placedBy}</span></p>` : ''}
             `,
           });
 
           mapMarker.addListener('click', () => {
-            // Close the currently open info window if there is one
             if (currentInfoWindow) {
               currentInfoWindow.close();
             }
-            infoWindow.open(map, mapMarker);
+            infoWindow.open({ map, anchor: mapMarker, shouldFocus: false });
+            map.setOptions({
+              paddingTop: 20,
+              paddingRight: 20,
+              paddingBottom: 20,
+              paddingLeft: 20,
+            });
             currentInfoWindow = infoWindow;
           });
 
@@ -196,10 +196,111 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
 </script>
 
 <style>
+  .map-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
   .google-map {
-    width: 100%;
-    height: 85dvh;
-    border-radius: 8px;
+    width: 90%;
+    height: 80dvh;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #fffffa;
+  }
+  /* DESKTOP */
+  @media (min-width: 768px) {
+    .google-map {
+      height: 75dvh;
+      border-radius: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  .gm-style .gm-style-iw-c {
+    --iw-bg: #f5f0e8;
+    --iw-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.66'/%3E%3C/svg%3E");
+    background-color: var(--iw-bg) !important;
+    background-image: var(--iw-noise) !important;
+    max-width: 90% !important;
+    min-width: 300px !important;
+    padding: 0 !important;
+  }
+
+  .gm-style .gm-style-iw-c > * {
+    background-color: var(--iw-bg) !important;
+    background-image: var(--iw-noise) !important;
+  }
+
+  .gm-style .gm-style-iw-d {
+    background-color: var(--iw-bg) !important;
+    background-image: var(--iw-noise) !important;
+    padding-bottom: 0 !important;
+  }
+
+  .gm-style .gm-style-iw-d::-webkit-scrollbar,
+  .gm-style .gm-style-iw-d::-webkit-scrollbar-track,
+  .gm-style .gm-style-iw-d::-webkit-scrollbar-thumb {
+    display: none;
+  }
+
+  .gm-style .gm-style-iw-t::after {
+    background: var(--iw-bg);
+  }
+
+  .gm-style-iw-chr button {
+    display: none !important;
+  }
+
+  .gm-style-iw-ch {
+    padding: 4px 0 0 0 !important;
+  }
+
+  /* INFOWINDOW STYLES */
+  .iw-container {
+    padding: 10px;
+  }
+
+  .iw-title {
+    margin: 0 0 5px 0;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Coramant Garamond', serif;
+    color: #2c2420;
+  }
+
+  .iw-location {
+    margin: 0;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    color: #7a6e65;
+  }
+
+  .iw-media {
+    width: 100%;
+    border-radius: 4px;
+    max-height: 37dvh;
+  }
+
+  .iw-media--image {
+    object-fit: contain;
+  }
+
+  .iw-placed-by {
+    margin: 8px 0 0 0;
+    font-size: 0.8rem;
+    color: #7a6e65;
+    display: flex;
+    justify-self: end;
+  }
+
+  .iw-placed-by__name {
+    color: #c6002b;
+    padding-left: 0.1rem;
+    font-weight: 500;
   }
 </style>
