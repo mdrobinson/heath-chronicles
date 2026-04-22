@@ -56,6 +56,8 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
       const mapElement = document.getElementById(mapId);
       if (!mapElement) return;
 
+      mapElement.style.setProperty('--map-width', `${mapElement.offsetWidth}px`);
+
       // Create the map
       const map = new google.maps.Map(mapElement, {
         zoom: zoom,
@@ -259,6 +261,8 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
   /* INFOWINDOW STYLES */
   .iw-container {
     padding: 10px;
+    max-width: calc(var(--map-width) * 0.9);
+    overflow: hidden;
   }
 
   .iw-title {
@@ -269,6 +273,8 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
     justify-content: center;
     font-family: 'Coramant Garamond', serif;
     color: #2c2420;
+    max-width: 90%;
+    text-align: center;
   }
 
   .iw-location {
