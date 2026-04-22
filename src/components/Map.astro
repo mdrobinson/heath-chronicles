@@ -70,7 +70,7 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
         fullscreenControl: false,
         panControl: false,
         disableDefaultUI: true,
-        mapTypeId: 'satellite',
+        mapTypeId: 'hybrid',
         styles: [
           {
             featureType: 'administrative',
@@ -91,6 +91,11 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
             featureType: 'administrative.locality',
             elementType: 'labels',
             stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'administrative.locality',
+            elementType: 'labels.text.stroke',
+            stylers: [{ color: '#1a1a1a' }, { weight: 2 }],
           },
           {
             featureType: 'poi',
