@@ -1,5 +1,6 @@
 ---
 import Map from '../components/Map.astro';
+import About from '../components/About.astro';
 import { fetchAllMediaFromFolder } from '../utils/cloudinary-media';
 const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 export interface Marker {
@@ -59,6 +60,7 @@ mediaData.all.forEach((media) => {
       </div>
 
       <Map apiKey={apiKey} markers={markers} zoom={4} />
+      <About />
     </main>
   </body>
 </html>
@@ -90,8 +92,6 @@ mediaData.all.forEach((media) => {
   }
 
   main {
-    margin: 0 auto;
-    padding: 1rem 0.5rem;
     min-height: 100dvh;
 
     /* Deep teal to navy - echoes ocean depth */
@@ -118,18 +118,27 @@ mediaData.all.forEach((media) => {
   #header {
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
     h1 {
       font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
       margin: 1rem 0;
-      color: #fff;
+      color: #dde8f5;
+      font-weight: 600;
+      text-align: center;
       text-shadow:
-        0 0 20px rgba(20, 184, 166, 0.7),
-        0 0 60px rgba(20, 184, 166, 0.3);
+        0 0 20px rgba(255, 255, 255, 0.35),
+        0 0 60px rgba(210, 228, 255, 0.2),
+        0 0 120px rgba(190, 215, 255, 0.12),
+        0 2px 4px rgba(0, 0, 0, 0.25);
     }
   }
 
-  p {
-    color: #666;
-    margin-bottom: 2rem;
+  @media (min-width: 768px) {
+    #header h1 {
+      font-size: 2.5rem;
+    }
   }
 </style>
