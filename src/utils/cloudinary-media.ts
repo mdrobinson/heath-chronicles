@@ -44,28 +44,27 @@ function formatResource(resource: any) {
   };
 }
 
+export async function listFolders() {
+  const result = await cloudinary.api.root_folders();
+  console.log(result.folders); // logs [{ name, path, external_id }, ...]
+}
+
 export async function fetchAllMediaFromFolder(folderPath: string) {
   try {
     // Fetch images
-    const imageResults = await cloudinary.api.resources({
-      type: 'upload',
-      prefix: folderPath,
+    const imageResults = await cloudinary.api.resources_by_asset_folder(folderPath, {
       resource_type: 'image',
       max_results: 500,
       metadata: true,
       context: true,
-      public_ids: true,
     });
 
     // Fetch videos
-    const videoResults = await cloudinary.api.resources({
-      type: 'upload',
-      prefix: folderPath,
+    const videoResults = await cloudinary.api.resources_by_asset_folder(folderPath, {
       resource_type: 'video',
       max_results: 500,
       metadata: true,
       context: true,
-      public_ids: true,
     });
 
     const images = imageResults.resources.map(formatResource);

@@ -1,7 +1,7 @@
 ---
 import Map from '../components/Map.astro';
 import About from '../components/About.astro';
-import { fetchAllMediaFromFolder } from '../utils/cloudinary-media';
+import { fetchAllMediaFromFolder, listFolders } from '../utils/cloudinary-media';
 const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 export interface Marker {
   lat: number;
@@ -16,7 +16,8 @@ export interface Marker {
 }
 
 let markers: Marker[] = [];
-const mediaData = await fetchAllMediaFromFolder('');
+await listFolders();
+const mediaData = await fetchAllMediaFromFolder('MarkerPhotos');
 mediaData.all.forEach((media) => {
   if (
     media.context.custom &&
