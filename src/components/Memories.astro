@@ -1,0 +1,228 @@
+---
+import { fetchAllMediaFromFolder } from '../utils/cloudinary-media';
+
+const mediaData = await fetchAllMediaFromFolder('SlideshowPhotos');
+const images = mediaData.images;
+const serialized = JSON.stringify(
+  images.map((img) => ({
+    url: img.optimizedUrl,
+    title: img.context?.custom?.caption ?? null,
+    description: img.context?.custom?.alt ?? null,
+    date: img.context?.custom?.date ?? null,
+  }))
+);
+---
+
+{
+  images.length > 0 && (
+    <div class="memories-outer">
+      <div class="memories-wrapper">
+        <h2>Memories</h2>
+        <div class="memory-card" id="memory-card">
+          <div class="memory-image-container">
+            <img id="memory-image" src="" alt="" class="memory-image" />
+            <img
+              id="memory-placeholder"
+              src="/favicon.png"
+              alt=""
+              class="memory-placeholder"
+              aria-hidden="true"
+            />
+          </div>
+          <p id="memory-title" class="memory-title" />
+          <p id="memory-date" class="memory-date" />
+          <p id="memory-description" class="memory-description" />
+        </div>
+        <button id="new-memory-btn" class="new-memory-btn">
+          Another!
+        </button>
+      </div>
+    </div>
+  )
+}
+
+<script is:inline define:vars={{ serialized }}>
+  const images = JSON.parse(serialized);
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  let queue = shuffle([...images]);
+  let queueIndex = 0;
+
+  function showImage(img) {
+    const imageEl = document.getElementById('memory-image');
+    const placeholderEl = document.getElementById('memory-placeholder');
+    const titleEl = document.getElementById('memory-title');
+    const dateEl = document.getElementById('memory-date');
+    const descEl = document.getElementById('memory-description');
+
+    imageEl.style.display = 'none';
+    placeholderEl.style.display = 'block';
+    titleEl.style.display = 'none';
+    dateEl.style.display = 'none';
+    descEl.style.display = 'none';
+
+    imageEl.alt = img.title ?? 'A memory of Heath';
+    imageEl.onload = () => {
+      placeholderEl.style.display = 'none';
+      imageEl.style.display = '';
+      titleEl.textContent = img.title ?? '';
+      titleEl.style.display = img.title ? '' : 'none';
+      dateEl.textContent = img.date ?? '';
+      dateEl.style.display = img.date ? '' : 'none';
+      descEl.textContent = img.description ?? '';
+      descEl.style.display = img.description ? '' : 'none';
+    };
+    imageEl.src = img.url;
+  }
+
+  showImage(queue[queueIndex]);
+
+  document.getElementById('new-memory-btn').addEventListener('click', () => {
+    queueIndex++;
+    if (queueIndex >= queue.length) {
+      queue = shuffle([...images]);
+      queueIndex = 0;
+    }
+    showImage(queue[queueIndex]);
+  });
+</script>
+
+<style>
+  .memories-outer {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 1rem;
+
+    @media (min-width: 768px) {
+      margin: 2rem 0;
+    }
+  }
+
+  .memories-wrapper {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      color: #dde8f5;
+      font-weight: 400;
+      margin: 0 0 1.5rem 0;
+      font-size: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      width: 70%;
+    }
+  }
+
+  .memory-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    min-width: 300px;
+  }
+
+  .memory-image-container {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .memory-image {
+    width: 300px;
+    height: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .memory-placeholder {
+    display: none;
+    animation: spin 1.5s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .memory-title {
+    font-family: 'Playfair Display', serif;
+    color: #dde8f5;
+    font-size: 1.25rem;
+    text-align: center;
+    margin: 0;
+    margin-bottom: 0.5rem;
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  .memory-date {
+    color: #c4b8b0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    text-align: center;
+    margin: -0.8rem 0 -0.4rem 0;
+    font-style: italic;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .memory-description {
+    color: #b8c9d9;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    text-align: left;
+    margin-top: 0rem;
+
+    @media (min-width: 768px) {
+      font-size: 1.25rem;
+      max-width: 70%;
+    }
+  }
+
+  .new-memory-btn {
+    background: transparent;
+    border: 1px solid rgba(212, 180, 131, 0.5);
+    color: #d4b483;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      border-color: #d4b483;
+      color: #e8c99a;
+    }
+
+    @media (min-width: 768px) {
+      margin-top: 1rem;
+    }
+  }
+</style>

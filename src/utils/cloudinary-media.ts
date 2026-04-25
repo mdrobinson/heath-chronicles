@@ -44,9 +44,24 @@ function formatResource(resource: any) {
   };
 }
 
-export async function listFolders() {
-  const result = await cloudinary.api.root_folders();
-  console.log(result.folders); // logs [{ name, path, external_id }, ...]
+export async function fetchRandomImageFromFolder(folderPath: string) {
+  try {
+    const results = await cloudinary.api.resources_by_asset_folder(folderPath, {
+      resource_type: 'image',
+      max_results: 500,
+      metadata: true,
+      context: true,
+    });
+
+    const resources = results.resources;
+    if (!resources.length) return null;
+
+    const random = resources[Math.floor(Math.random() * resources.length)];
+    return formatResource(random);
+  } catch (error) {
+    console.error(`Error fetching random image from folder "${folderPath}":`, error);
+    return null;
+  }
 }
 
 export async function fetchAllMediaFromFolder(folderPath: string) {
