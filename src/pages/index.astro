@@ -18,6 +18,15 @@ export interface Marker {
 let markers: Marker[] = [];
 const mediaData = await fetchAllMediaFromFolder('');
 mediaData.all.forEach((media) => {
+  if (
+    media.context.custom.lat === undefined ||
+    media.context.custom.long === undefined ||
+    media.context.custom.caption === undefined ||
+    media.context.custom.alt === undefined ||
+    media.context.custom.identifier === undefined
+  ) {
+    return;
+  }
   const thisMarker: Marker = {
     lat: Number(media.context.custom.lat),
     lng: Number(media.context.custom.long),
@@ -29,9 +38,7 @@ mediaData.all.forEach((media) => {
     placedBy: media.context.custom['placed-by'],
     mediaType: media.resourceType,
   };
-  if (thisMarker.title && thisMarker.identifier && thisMarker.lat && thisMarker.lng) {
-    markers.push(thisMarker);
-  }
+  markers.push(thisMarker);
 });
 ---
 
