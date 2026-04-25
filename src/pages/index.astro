@@ -19,26 +19,27 @@ let markers: Marker[] = [];
 const mediaData = await fetchAllMediaFromFolder('');
 mediaData.all.forEach((media) => {
   if (
-    media.context.custom.lat === undefined ||
-    media.context.custom.long === undefined ||
-    media.context.custom.caption === undefined ||
-    media.context.custom.alt === undefined ||
-    media.context.custom.identifier === undefined
+    media.context.custom &&
+    media.context.custom.lat &&
+    media.context.custom.long &&
+    media.context.custom.caption &&
+    media.context.custom.alt &&
+    media.context.custom.identifier &&
+    media.context.custom['placed-by']
   ) {
-    return;
+    const thisMarker: Marker = {
+      lat: Number(media.context.custom.lat),
+      lng: Number(media.context.custom.long),
+      title: media.context.custom.caption,
+      location: media.context.custom.alt,
+      identifier: media.context.custom.identifier,
+      optimizedUrl: media.optimizedUrl,
+      thumbnailUrl: media.thumbnailUrl,
+      placedBy: media.context.custom['placed-by'],
+      mediaType: media.resourceType,
+    };
+    markers.push(thisMarker);
   }
-  const thisMarker: Marker = {
-    lat: Number(media.context.custom.lat),
-    lng: Number(media.context.custom.long),
-    title: media.context.custom.caption,
-    location: media.context.custom.alt,
-    identifier: media.context.custom.identifier,
-    optimizedUrl: media.optimizedUrl,
-    thumbnailUrl: media.thumbnailUrl,
-    placedBy: media.context.custom['placed-by'],
-    mediaType: media.resourceType,
-  };
-  markers.push(thisMarker);
 });
 ---
 
