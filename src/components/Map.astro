@@ -110,8 +110,28 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
         ],
       });
 
+      const ICON_URL =
+        'https://res.cloudinary.com/dtium3yae/image/upload/v1774211321/heath40_uhjxeo.png';
+      const BASE_ZOOM = 4;
+      const BASE_SIZE = 30;
+
+      function getIconSize(zoom) {
+        return Math.max(20, Math.min(40, BASE_SIZE + (zoom - BASE_ZOOM) * 2));
+      }
+
+      function buildIcon(zoom) {
+        const s = getIconSize(zoom);
+        return {
+          url: ICON_URL,
+          scaledSize: new google.maps.Size(s, s),
+          size: new google.maps.Size(s, s),
+          anchor: new google.maps.Point(s / 2, s),
+        };
+      }
+
       // Keep track of the currently open info window
       let currentInfoWindow = null;
+      const mapMarkers = [];
 
       // Add markers
       markers.forEach((marker) => {
@@ -119,13 +139,9 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
           position: { lat: marker.lat ?? 0, lng: marker.lng ?? 0 },
           map: map,
           title: marker.title || '',
-          icon: {
-            url: 'https://res.cloudinary.com/dtium3yae/image/upload/v1774211321/heath40_uhjxeo.png',
-            scaledSize: new google.maps.Size(40, 40),
-            size: new google.maps.Size(40, 40),
-            anchor: new google.maps.Point(20, 40),
-          },
+          icon: buildIcon(map.getZoom()),
         });
+        mapMarkers.push(mapMarker);
 
         // Build media HTML based on type
         const getMediaHtml = (marker) => {
@@ -179,6 +195,11 @@ const mapId = `map-${Math.random().toString(36).substring(7)}`;
             }
           });
         }
+      });
+
+      map.addListener('zoom_changed', () => {
+        const icon = buildIcon(map.getZoom());
+        mapMarkers.forEach((m) => m.setIcon(icon));
       });
 
       // Auto-fit bounds if there are multiple markers
